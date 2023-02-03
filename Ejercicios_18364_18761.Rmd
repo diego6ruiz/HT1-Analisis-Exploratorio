@@ -91,9 +91,9 @@ orden10menos
 ```{r}
 peliculas$releaseDate = as.Date(peliculas$releaseDate, "%Y-%m-%d")
 peliculas$year = format(peliculas$releaseDate, "%Y")
-peliculasPoraño = table(peliculas$year)
-peliculasPoraño
-barplot(peliculasPoraño, xlab = "Año", ylab = "Numero de peliculas")
+peliculasPoranio = table(peliculas$year)
+peliculasPoranio
+barplot(peliculasPoranio, xlab = "Anio", ylab = "Numero de peliculas")
 ```
 
 #4.6: ¿Cuál es el género principal de las 20 películas más recientes? ¿Cuál es el género principal que predomina en el conjunto de datos? Represéntelo usando un gráfico
@@ -103,27 +103,30 @@ peliculasOrd <- peliculas[order(peliculas$releaseDate),]
 peliculasRec <- peliculasOrd[1:20, ]
 peliculasRec <- do.call(rbind, strsplit(as.character(peliculasRec$genres), ", "))
 peliculasFreq = names(sort(table(peliculasRec), increasing=TRUE))[1]
-barplot(table(peliculasRec), xlab="Generos", ylab="Cuenta", main=paste("Distribucion de los generos en las 20 peliculas más recientes\n Genero predominante: ", peliculasFreq))
+barplot(table(peliculasRec), xlab="Generos", ylab="Cuenta", main=paste("Distribucion de los generos en las 20 peliculas mas recientes\n Genero predominante: ", peliculasFreq))
 ```
 
 #4.7 ¿Las películas de qué género principal obtuvieron mayores ganancias?
 
 ```{r}
-subset(ganancias, select = c("id","genres", "revenue"))
+masGanancias <- subset(ganancias, select = c("id","genres", "revenue"))
+head(masGanancias, 10)
 ```
 
 #4.8 ¿La cantidad de actores influye en los ingresos de las películas? ¿Se han hecho películas con más actores en los últimos años?
 
 ```{r}
 actores <- peliculas[order(-peliculas$actorsAmount),]
-subset(actores, select = c("id", "revenue", "actorsAmount", "releaseDate"))
+ordenActores <- subset(actores, select = c("id", "revenue", "actorsAmount", "releaseDate"))
+head(ordenActores, 10)
 ```
 
 #4.9 ¿Es posible que la cantidad de hombres y mujeres en el reparto influya en la popularidad y los ingresos de las películas?
 
 ```{r}
 popularidad <- peliculas[order(-peliculas$popularity),]
-subset(popularidad, select = c("id", "popularity", "castWomenAmount", "castMenAmount"))
+ordenPopularidad <- subset(popularidad, select = c("id", "popularity", "castWomenAmount", "castMenAmount"))
+head(ordenPopularidad, 10)
 ```
 
 #4.10 ¿Quiénes son los directores que hicieron las 20 películas mejor calificadas?
