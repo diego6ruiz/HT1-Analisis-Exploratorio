@@ -1,0 +1,174 @@
+---
+title: "HDT1"
+author: "Jorge Perez y Diego Ruiz"
+date: "2023-02-01"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+peliculas <- read.csv("movies.csv")
+```
+
+### 1. Resumen del conjunto de datos
+
+```{r}
+head(peliculas)
+summary(peliculas)
+```
+
+#Descripcion de las variables #Aquí describis a las variables:
+
+```{r echo = FALSE}
+class(peliculas$id)
+class(peliculas$budget)
+class(peliculas$genres)
+class(peliculas$homePage)
+class(peliculas$productionCompany)
+class(peliculas$productionCompanyCountry)
+class(peliculas$productionCountry)
+class(peliculas$revenue)
+class(peliculas$runtime)
+class(peliculas$video)
+class(peliculas$director)
+class(peliculas$actors)
+class(peliculas$actorsPopularity)
+class(peliculas$actorsCharacter)
+class(peliculas$originalTitle)
+class(peliculas$title)
+class((peliculas$originalLanguage))
+class(peliculas$popularity)
+class(peliculas$releaseDate)
+class(peliculas$voteAvg)
+class(peliculas$voteCount)
+class(peliculas$genresAmount)
+class(peliculas$productionCoAmount)
+class(peliculas$productionCountriesAmount)
+class(peliculas$actorsAmount)
+class(peliculas$castWomenAmount)
+class(peliculas$castMenAmount)
+```
+
+### 4.1: Top 10 de peliculas con más presupuesto.
+
+```{r}
+presupuesto <- peliculas[order(-peliculas$budget),]
+top10 <- head(presupuesto, 10)
+top10
+```
+#Se puede observar que los géneros más communes con Adventure, Action, Science Fiction y Fantasy.
+
+#4.2: Top 10 peliculas con más ingresos
+
+```{r}
+ganancias <- peliculas[order(-peliculas$revenue),]
+top10ganancias<- head(ganancias, 10)
+top10ganancias
+```
+
+#4.3: pelicula con mas votos
+
+```{r}
+masVotos <- peliculas[order(-peliculas$voteCount),]
+top10votos <- head(masVotos, 10)
+top10votos
+```
+
+#4.4: Top 10 peliculas con menos votos
+
+```{r}
+orden10menos <- tail(masVotos, 10)
+orden10menos
+```
+
+#4.5: ¿Cuántas películas se hicieron en cada año? ¿En qué año se hicieron más películas? Haga un gráfico de barras
+
+```{r}
+peliculas$releaseDate = as.Date(peliculas$releaseDate, "%Y-%m-%d")
+peliculas$year = format(peliculas$releaseDate, "%Y")
+peliculasPoraño = table(peliculas$year)
+peliculasPoraño
+barplot(peliculasPoraño, xlab = "Año", ylab = "Numero de peliculas")
+```
+
+#4.6: ¿Cuál es el género principal de las 20 películas más recientes? ¿Cuál es el género principal que predomina en el conjunto de datos? Represéntelo usando un gráfico
+
+```{r}
+peliculasOrd <- peliculas[order(peliculas$releaseDate),]
+peliculasRec <- peliculasOrd[1:20, ]
+peliculasRec <- do.call(rbind, strsplit(as.character(peliculasRec$genres), ", "))
+peliculasFreq = names(sort(table(peliculasRec), increasing=TRUE))[1]
+barplot(table(peliculasRec), xlab="Generos", ylab="Cuenta", main=paste("Distribucion de los generos en las 20 peliculas más recientes\n Genero predominante: ", peliculasFreq))
+```
+
+#4.7 ¿Las películas de qué género principal obtuvieron mayores ganancias?
+
+```{r}
+subset(ganancias, select = c("id","genres", "revenue"))
+```
+
+#4.8 ¿La cantidad de actores influye en los ingresos de las películas? ¿Se han hecho películas con más actores en los últimos años?
+
+```{r}
+actores <- peliculas[order(-peliculas$actorsAmount),]
+subset(actores, select = c("id", "revenue", "actorsAmount", "releaseDate"))
+```
+
+#4.9 ¿Es posible que la cantidad de hombres y mujeres en el reparto influya en la popularidad y los ingresos de las películas?
+
+```{r}
+popularidad <- peliculas[order(-peliculas$popularity),]
+subset(popularidad, select = c("id", "popularity", "castWomenAmount", "castMenAmount"))
+```
+
+#4.10 ¿Quiénes son los directores que hicieron las 20 películas mejor calificadas?
+
+```{r}
+peliculas_na <- peliculas[!is.na(peliculas$voteCount), ]
+peliculas_ord <- peliculas[order(-peliculas$voteCount), ]
+top_20_movies <- peliculas_ord[1:20, c("title", "director")]
+print(top_20_movies)
+```
+
+#4.11 ¿Cómo se correlacionan los presupuestos con los ingresos? ¿Los altos presupuestos significan altos ingresos? Haga los gráficos que necesite, histograma, diagrama de disperción, etc.
+
+```{r}
+reg <- lm(peliculas$budget ~ peliculas$revenue, data = peliculas)
+plot(peliculas$budget, peliculas$revenue, main="Budget vs Revenue", xlab="Budget", ylab="Revenue", pch=16)
+abline(reg, col = "green")
+```
+
+#Podemos observar que si se mantiene una ganancia en crecimiento hay un aumento en el presupuesto.
+
+#4.12: ¿Se asocian ciertos meses de lanzamiento con mejores ingresos? 
+```{r}
+peliculas$mesSalida <- as.numeric(format(as.Date(peliculas$releaseDate, format ="%Y-%m-%d"), "%m"))
+plot(peliculas$mesSalida, peliculas$revenue, xlab="Mes de Salida", ylab="Revenue")
+```
+#4.13: ¿En qué meses se han visto los lanzamientos con mejores ingresos?¿cuantas películas, en promedio, se han lanzado por mes? 
+
+```{r}
+peliculas$mesSalida <- as.numeric(format(as.Date(peliculas$releaseDate, format ="%Y-%m-%d"), "%m"))
+revenue_mes <- tapply(peliculas$revenue, peliculas$mesSalida, sum )
+mes_mas_rev <- which.max(revenue_mes)
+cat("El mes con más revenue es:", mes_mas_rev, "\n")
+cat("Este revenue es:", revenue_mes[mes_mas_rev], "\n")
+peliculas_mensuales <- table(peliculas$mesSalida)
+promedio <- mean(peliculas_mensuales)
+cat("El numero promedio de peliculas que son lanzadas por mes es:", promedio, "\n")
+```
+#4.15: ¿A qué género principal pertenecen las películas más largas? 
+
+```{r}
+peliculasRun <- peliculas[order(-peliculas$runtime), ]
+top_5 <- peliculasRun[1:5, ]
+cat("Los generos con las peliculas más largas son:", "\n")
+for (i in 1:5) {
+  cat(top_5$title[i], ":", top_5$genres[i], "\n")
+}
+```
